@@ -63,6 +63,6 @@ class MyHandler(BaseHTTPRequestHandler):
             self.wfile.write(html.encode())
 
 if __name__ == "__main__":
-    server = HTTPServer(("0.0.0.0", 8000), MyHandler)
+    server = HTTPServer(("127.0.0.1", 8000), MyHandler)
     print("Server running at http://0.0.0.0:8000")
     server.serve_forever()
