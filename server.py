@@ -16,6 +16,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 import urllib.parse
 import os
 import mimetypes
+import sqlite3
 
 class MyHandler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -46,6 +47,10 @@ class MyHandler(BaseHTTPRequestHandler):
             body = self.rfile.read(length).decode()
             data = urllib.parse.parse_qs(body)
             name = data.get("username", ["Anonymous"])[0]
+            with sqlite3.connect("users.db") as conn:
+                conn.execute("PRAGMA foreign_keys = ON;")
+                conn.row_factory = sqlite3.Row
+                conn.execute("INSERT INTO users (name) VALUES (?);", (name,))
 
             html = f"""
             <!DOCTYPE html>
@@ -63,6 +68,10 @@ class MyHandler(BaseHTTPRequestHandler):
             self.wfile.write(html.encode())
 
 if __name__ == "__main__":
-    server = HTTPServer(("127.0.0.1", 8000), MyHandler)
-    print("Server running at http://0.0.0.0:8000")
+    with sqlite3.connect("users.db") as conn:
+        conn.execute("PRAGMA foreign_keys = ON;")
+        conn.row_factory = sqlite3.Row
+        conn.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT);")
+    server = HTTPServer(("192.168.0.63", 8000), MyHandler)
+    print("Server running at http://192.168.0.63:8000")
     server.serve_forever()
