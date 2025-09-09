@@ -1,0 +1,15 @@
+:root {
+    --bg-color: #2d2d2d;
+    --text-color: #ffffff;
+}
+@font-face {
+  font-family: "Dongle";
+  src: url("Dongle-Regular.ttf") format("truetype");
+}
+body {
+    background: var(--bg-color);
+    color: var(--text-color);
+    font-family: 'Dongle', sans-serif;
+    margin: 0;
+    text-align: center;
+}
