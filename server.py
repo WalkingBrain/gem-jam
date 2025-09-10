@@ -18,7 +18,7 @@ import os
 import mimetypes
 
 class MyHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
+    def do_GET(self):               
         # Default to index.html
         path = self.path.lstrip("/")
         if path == "":
@@ -63,6 +63,6 @@ class MyHandler(BaseHTTPRequestHandler):
             self.wfile.write(html.encode())
 
 if __name__ == "__main__":
-    server = HTTPServer(("0.0.0.0", 8000), MyHandler)
-    print("Server running at http://0.0.0.0:8000")
+    server = HTTPServer(("192.168.0.220", 8000), MyHandler)
+    print("Server running at http://192.168.0.220:8000")
     server.serve_forever()
