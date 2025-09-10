@@ -19,7 +19,7 @@ import mimetypes
 import sqlite3
 
 class MyHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
+    def do_GET(self):               
         # Default to index.html
         path = self.path.lstrip("/")
         if path == "":
