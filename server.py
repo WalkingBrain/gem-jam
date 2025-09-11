@@ -72,6 +72,6 @@ if __name__ == "__main__":
         conn.execute("PRAGMA foreign_keys = ON;")
         conn.row_factory = sqlite3.Row
         conn.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT);")
-    server = HTTPServer(("192.168.0.63", 8000), MyHandler)
-    print("Server running at http://192.168.0.63:8000")
+    server = HTTPServer(("192.168.0.220", 8000), MyHandler)
+    print("Server running at http://192.168.0.220:8000")
     server.serve_forever()
