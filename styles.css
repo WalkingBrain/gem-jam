@@ -26,6 +26,6 @@ button {
     font-family: 'Dongle', sans-serif;
     font-size: 32px;
     border-radius: 10px;
-    background-color: #999999;
-    color: #000000;
+    background-color: var(--bg-color);
+    color: var(--text-color);
 }
