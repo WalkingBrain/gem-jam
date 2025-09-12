@@ -8,11 +8,11 @@
 <html>
   <body>
     <h1></h1>
-    <!-- The form submits data to /submit on the server using POST -->
-    <form action="/submit" method="post">
-        Username: <input type="text" name="create_username" required><br>
-        Password: <input type="text" name="create_password" required><br>
-        Password again: <input type="text" name="create_password_again" required><br>
+    <!-- The form submits data to /signup on the server using POST -->
+    <form action="/signup" method="post">
+        Username: <input type="text" name="username" required><br>
+        Password: <input type="password" name="password" required><br>
+        Password again: <input type="password" name="password_again" required><br>
       <button type="submit">Create account</button>
     </form>
     <p>Already have an account?
