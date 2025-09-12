@@ -42,36 +42,76 @@ class MyHandler(BaseHTTPRequestHandler):
             self.send_error(404, "File Not Found")
 
     def do_POST(self):
-        if self.path == "/submit":
-            length = int(self.headers.get("Content-Length"))
-            body = self.rfile.read(length).decode()
-            data = urllib.parse.parse_qs(body)
-            name = data.get("username", ["Anonymous"])[0]
-            with sqlite3.connect("users.db") as conn:
-                conn.execute("PRAGMA foreign_keys = ON;")
-                conn.row_factory = sqlite3.Row
-                conn.execute("INSERT INTO users (name) VALUES (?);", (name,))
+        length = int(self.headers.get("Content-Length", 0))
+        body = self.rfile.read(length).decode()
+        data = urllib.parse.parse_qs(body)
 
-            html = f"""
-            <!DOCTYPE html>
-            <html>
-              <head><link rel="stylesheet" href="styles.css"></head>
-              <body>
-                <h1>Hello, {name}!</h1>
-                <a href="/">Go back</a>
-              </body>
-            </html>
-            """
-            self.send_response(200)
-            self.send_header("Content-type", "text/html")
-            self.end_headers()
-            self.wfile.write(html.encode())
+        # Extract form fields
+        username = data.get("username", [""])[0]
+        password = data.get("password", [""])[0]
 
+        if self.path == "/signup":
+            success, msg = handle_signup(username, password)
+            if success:
+                self.send_response(302)  # redirect
+                self.send_header("Location", "/login.html")
+                self.end_headers()
+            else:
+                self.respond_with_message(msg)
+
+        elif self.path == "/login":
+            success, msg = handle_login(username, password)
+            if success:
+                self.respond_with_message(msg)
+            else:
+                self.respond_with_message(msg, status=401)
+    
+    def respond_with_message(self, message, status=200):
+        self.send_response(status)
+        self.send_header("Content-Type", "text/html")
+        self.end_headers()
+        self.wfile.write(message.encode())
+
+def handle_signup(username, password):
+    conn = sqlite3.connect("users.db")
+    c = conn.cursor()
+
+    try:
+        c.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, password))
+        conn.commit()
+        return True, "Signup successful"
+    except sqlite3.IntegrityError:
+        return False, "Username already taken"
+    finally:
+        conn.close()
+
+def handle_login(username, password):
+    conn = sqlite3.connect("users.db")
+    c = conn.cursor()
+
+    c.execute("SELECT * FROM users WHERE username = ? AND password = ?", (username, password))
+    user = c.fetchone()
+    conn.close()
+
+    if user:
+        return True, f"Welcome back, {username}!"
+    else:
+        return False, "Invalid username or password"
+
+
+    
+        
 if __name__ == "__main__":
     with sqlite3.connect("users.db") as conn:
         conn.execute("PRAGMA foreign_keys = ON;")
         conn.row_factory = sqlite3.Row
-        conn.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT);")
+        conn.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL           
+        )
+        """)
     server = HTTPServer(("127.0.0.1", 8000), MyHandler)
     print("Server running at http://127.0.0.1:8000")
     server.serve_forever()

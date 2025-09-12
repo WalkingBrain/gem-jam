@@ -4,7 +4,7 @@
 }
 @font-face {
   font-family: "Dongle";
-  src: url("Dongle-Regular.ttf") format("truetype");
+  src: url("fonts/Dongle-Light.ttf") format("truetype");
 }
 body {
     background: var(--bg-color);
