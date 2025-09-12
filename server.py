@@ -49,9 +49,10 @@ class MyHandler(BaseHTTPRequestHandler):
         # Extract form fields
         username = data.get("username", [""])[0]
         password = data.get("password", [""])[0]
+        password_again = data.get("password_again", [""])[0]
 
         if self.path == "/signup":
-            success, msg = handle_signup(username, password)
+            success, msg = handle_signup(username, password, password_again)
             if success:
                 self.send_response(302)  # redirect
                 self.send_header("Location", "/login.html")
@@ -72,9 +73,11 @@ class MyHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(message.encode())
 
-def handle_signup(username, password):
+def handle_signup(username, password, password_again):
     conn = sqlite3.connect("users.db")
     c = conn.cursor()
+    if password != password_again:
+        return False, "Passwords do not match"
 
     try:
         c.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, password))
