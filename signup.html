@@ -3,13 +3,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign up | GemJam</title>
-    <link rel="icon" href="images/logo.svg" type="image/svg+xml">
+    <link rel="icon" href="/images/logo.svg" type="image/svg+xml">
     <link rel="stylesheet" href="styles.css">
 </head>
 <html>
   <body>
     <h1></h1>
     <!-- The form submits data to /signup on the server using POST -->
+    <div class="password-container">
     <form action="/signup" method="post">
         Username: <input type="text" name="username" required><br>
         Password: <input type="password" name="password" required><br>
@@ -22,12 +23,12 @@
         Password again: <input type="password" name="password_again" required><br>
       <button type="submit">Create account</button>
     </form>
+    </div>
     <p>Already have an account?
     <a href="login.html"><button type="submit" name="signup">Log in</button><br></a>
     <a href="index.html"><button type="submit" name="home">Home</button></a>
     </p>
-  </body>
-
-  <script src="password_suggestion.js"></script>
+  
+    <script src="password_suggestion.js"></script>
 
 </html>

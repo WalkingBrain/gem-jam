@@ -1,17 +1,3 @@
-"""
-import sqlite3
-
-with sqlite3.connect("users.db") as conn:
-    conn.execute("PRAGMA foreign_keys = ON;")
-    conn.row_factory = sqlite3.Row
-    conn.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT, age INTEGER);")
-
-with sqlite3.connect("app.db") as conn:
-    conn.row_factory = sqlite3.Row
-    user_number = input("Enter user number to fetch: ")
-    user = conn.execute("SELECT * FROM users WHERE id = ?", (user_number)).fetchone()
-    print(dict(user))
-    """
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import urllib.parse
 import os
