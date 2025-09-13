@@ -137,7 +137,8 @@ if __name__ == "__main__":
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT UNIQUE NOT NULL,
             email TEXT UNIQUE NOT NULL,
-            password TEXT NOT NULL           
+            password TEXT NOT NULL,
+            rock_group TEXT       
         )
         """)
     server = HTTPServer(("127.0.0.1", 8000), MyHandler)
