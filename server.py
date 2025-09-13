@@ -63,7 +63,6 @@ class MyHandler(BaseHTTPRequestHandler):
                 sid = secrets.token_hex(16)
                 SESSIONS[sid] = username
 
-
                 self.send_response(302)  # redirect
                 self.send_header("Location", "/stones.html")
                 self.send_header("Set-Cookie", f"session_id={sid}; HttpOnly; Path=/")
@@ -90,6 +89,21 @@ class MyHandler(BaseHTTPRequestHandler):
             self.send_header("Location", "/index.html")
             self.send_header("Set-Cookie", "session_id=; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Path=/")
             self.end_headers()
+
+        elif self.path == "/set_stone":
+            stone = data.get("stone", [""])[0]
+            cookies = http.cookies.SimpleCookie(self.headers.get("Cookie"))
+            sid = cookies.get("session_id")
+            if sid and sid.value in SESSIONS:
+                username = SESSIONS[sid.value]
+                conn = sqlite3.connect("users.db")
+                c = conn.cursor()
+                c.execute("UPDATE users SET rock_group = ? WHERE username = ?", (stone, username))
+                conn.commit()
+                conn.close()
+                self.respond_with_message(f"Stone preference updated to {stone}")
+            else:
+                self.respond_with_message("Not logged in", status=401)
     
     def respond_with_message(self, message, status=200):
         self.send_response(status)
