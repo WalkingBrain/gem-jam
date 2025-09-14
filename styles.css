@@ -41,12 +41,4 @@ button:hover {
   flex-direction: column;
   align-items: center;
 }
-
-table {
-  border-collapse: collapse;
-th {
-  border: 3px solid ;
-}
-td {
-  line-height: 0.75 ;
-}}  
+  

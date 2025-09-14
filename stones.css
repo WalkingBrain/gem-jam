@@ -1,0 +1,41 @@
+.stones-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+  margin: 40px auto;
+  max-width: 800px;
+}
+
+.stone-card {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  border: 2px solid var(--text-color);
+  border-radius: 12px;
+  padding: 20px;
+  width: 150px;
+  text-align: center;
+  transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+  position: relative;
+  font-size: 28px;
+}
+
+.stone-card .stone-hover {
+  display: none;
+}
+
+.stone-card:hover {
+  transform: scale(1.05);
+  background-color: var(--text-color);
+  color: var(--bg-color);
+  cursor: pointer;
+}
+
+.stone-card:hover .stone-default {
+  display: none;
+}
+
+.stone-card:hover .stone-hover {
+  display: inline;
+}
+
