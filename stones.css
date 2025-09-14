@@ -1,41 +1,36 @@
-.stones-container {
+.traits-container {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 16px;
-  margin: 40px auto;
-  max-width: 800px;
+  gap: 12px;
+  margin: 20px 0;
 }
 
-.stone-card {
-  background-color: var(--bg-color);
-  color: var(--text-color);
+.trait-btn input {
+  display: none; /* hide the default checkbox */
+}
+
+.trait-btn span {
+  display: inline-block;
+  padding: 10px 18px;
   border: 2px solid var(--text-color);
   border-radius: 12px;
-  padding: 20px;
-  width: 150px;
-  text-align: center;
-  transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease;
-  position: relative;
   font-size: 28px;
-}
-
-.stone-card .stone-hover {
-  display: none;
-}
-
-.stone-card:hover {
-  transform: scale(1.05);
-  background-color: var(--text-color);
-  color: var(--bg-color);
+  transition: all 0.2s ease;
+  background-color: var(--bg-color);
+  color: var(--text-color);
   cursor: pointer;
 }
 
-.stone-card:hover .stone-default {
-  display: none;
+.trait-btn span:hover {
+  background-color: var(--text-color);
+  color: var(--bg-color);
+  transform: scale(1.05);
 }
 
-.stone-card:hover .stone-hover {
-  display: inline;
+.trait-btn input:checked + span {
+  background-color: var(--text-color);
+  color: var(--bg-color);
+  font-weight: bold;
+  transform: scale(0.95);
 }
-

@@ -7,6 +7,14 @@ import http.cookies
 import secrets
 
 SESSIONS = {}  # session_id -> username
+TRAIT_TO_STONE = {
+    frozenset(["reliable", "tough"]): "Granite",
+    frozenset(["artistic", "confident"]): "Diamond",
+    frozenset(["friendly", "artistic"]): "Marble",
+    frozenset(["reliable", "confident"]): "Basalt",
+    frozenset(["tough", "friendly"]): "Limestone",
+    # ... etc for all combos
+}
 
 class MyHandler(BaseHTTPRequestHandler):
     def do_GET(self):   
@@ -21,9 +29,6 @@ class MyHandler(BaseHTTPRequestHandler):
         else:
             print("No valid session found")
             self.send_response(200)
-
-
-
 
         # Default to index.html
         path = self.path.lstrip("/")
@@ -73,8 +78,12 @@ class MyHandler(BaseHTTPRequestHandler):
         elif self.path == "/login":
             success, msg = handle_login(username, password)
             if success:
+                sid = secrets.token_hex(16)
+                SESSIONS[sid] = username
+
                 self.send_response(302)
                 self.send_header('Location', '/home.html')
+                self.send_header("Set-Cookie", f"session_id={sid}; HttpOnly; Path=/")
                 self.end_headers()                
             else:
                 self.respond_with_message(msg, status=401)
@@ -90,11 +99,22 @@ class MyHandler(BaseHTTPRequestHandler):
             self.send_header("Set-Cookie", "session_id=; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Path=/")
             self.end_headers()
 
-        elif self.path == "/set_stone":
-            stone = data.get("stone", [""])[0]
+        elif self.path == "/evaluate_traits":
+
+
+            traits = data.get("traits", [])
+            if len(traits) != 2:
+                self.send_error(400, "Must pick exactly two traits")
+                return
+
+            stone = TRAIT_TO_STONE.get(frozenset(traits), "Quartz")  # fallback
+
+            print(f"User with traits {traits} gets stone {stone}")
+            print("Getting cookies...")
             cookies = http.cookies.SimpleCookie(self.headers.get("Cookie"))
             sid = cookies.get("session_id")
             if sid and sid.value in SESSIONS:
+                print("Found session, updating stone preference...")
                 username = SESSIONS[sid.value]
                 conn = sqlite3.connect("users.db")
                 c = conn.cursor()
@@ -104,6 +124,10 @@ class MyHandler(BaseHTTPRequestHandler):
                 self.respond_with_message(f"Stone preference updated to {stone}")
             else:
                 self.respond_with_message("Not logged in", status=401)
+
+            self.send_response(302)
+            self.send_header("Location", "/home.html")
+            self.end_headers()       
     
     def respond_with_message(self, message, status=200):
         self.send_response(status)

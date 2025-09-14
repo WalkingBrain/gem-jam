@@ -9,24 +9,32 @@
   <link rel="stylesheet" href="stones.css">
 </head>
 <body>
-  <div class="stones-container">
-    <form method="POST" action="/set_stone">
-      <input type="hidden" name="stone" value="Granite">
-      <button type="submit" class="stone-card">
-        <span class="stone-default">Reliable</span>
-        <span class="stone-hover">Select</span>
-      </button>
-    </form>
-
-    <form method="POST" action="/set_stone">
-      <input type="hidden" name="stone" value="Basalt">
-      <button type="submit" class="stone-card">
-        <span class="stone-default">Basalt</span>
-        <span class="stone-hover">Select</span>
-      </button>
-    </form>
-
-    <!-- more stones here -->
+<form method="POST" action="/evaluate_traits">
+  <div class="traits-container">
+    <label class="trait-btn">
+      <input type="checkbox" name="traits" value="reliable">
+      <span>Reliable</span>
+    </label>
+    <label class="trait-btn">
+      <input type="checkbox" name="traits" value="artistic">
+      <span>Artistic</span>
+    </label>
+    <label class="trait-btn">
+      <input type="checkbox" name="traits" value="tough">
+      <span>Tough</span>
+    </label>
+    <label class="trait-btn">
+      <input type="checkbox" name="traits" value="friendly">
+      <span>Friendly</span>
+    </label>
+    <label class="trait-btn">
+      <input type="checkbox" name="traits" value="confident">
+      <span>Confident</span>
+    </label>
   </div>
+  <button type="submit" disabled id="findStoneBtn">Find my stone</button>
+</form>
+<script src="stones.js"></script>
+<a href="index.html"><button type="submit" name="back">Back</button></a>
 </body>
 </html>
