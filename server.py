@@ -58,11 +58,12 @@ class MyHandler(BaseHTTPRequestHandler):
 
         # Extract form fields
         username = data.get("username", [""])[0]
+        email = data.get("email", [""])[0]
         password = data.get("password", [""])[0]
         password_again = data.get("password_again", [""])[0]
 
         if self.path == "/signup":
-            success, msg = handle_signup(username, password, password_again)
+            success, msg = handle_signup(username, email, password, password_again)
             if success:
                 # Create session
                 sid = secrets.token_hex(16)
@@ -81,12 +82,14 @@ class MyHandler(BaseHTTPRequestHandler):
                 sid = secrets.token_hex(16)
                 SESSIONS[sid] = username
 
-                self.send_response(302)
+                self.send_response(200)
                 self.send_header('Location', '/home.html')
                 self.send_header("Set-Cookie", f"session_id={sid}; HttpOnly; Path=/")
                 self.end_headers()                
             else:
-                self.respond_with_message(msg, status=401)
+                self.send_response(401)
+                self.end_headers()
+                #self.respond_with_message(msg, status=401)
 
         elif self.path == "/logout":
             cookies = http.cookies.SimpleCookie(self.headers.get("Cookie"))
@@ -130,23 +133,24 @@ class MyHandler(BaseHTTPRequestHandler):
             self.end_headers()       
     
     def respond_with_message(self, message, status=200):
+        return
         self.send_response(status)
         self.send_header("Content-Type", "text/html")
         self.end_headers()
         self.wfile.write(message.encode())
 
-def handle_signup(username, password, password_again):
+def handle_signup(username, email, password, password_again):
     conn = sqlite3.connect("users.db")
     c = conn.cursor()
     if password != password_again:
         return False, "Passwords do not match"
 
     try:
-        c.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, password))
+        c.execute("INSERT INTO users (username, email, password) VALUES (?, ?, ?)", (username, email, password))
         conn.commit()
         return True, "Signup successful"
     except sqlite3.IntegrityError:
-        return False, "Username already taken"
+        return False, "Username or email already exists"
     finally:
         conn.close()
 
