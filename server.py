@@ -8,11 +8,11 @@ import secrets
 
 SESSIONS = {}  # session_id -> username
 TRAIT_TO_STONE = {
-    frozenset(["reliable", "tough"]): "Granite",
-    frozenset(["artistic", "confident"]): "Diamond",
-    frozenset(["friendly", "artistic"]): "Marble",
-    frozenset(["reliable", "confident"]): "Basalt",
-    frozenset(["tough", "friendly"]): "Limestone",
+    frozenset({"reliable", "tough"}): "Granite",
+    frozenset({"artistic", "confident"}): "Diamond",
+    frozenset({"friendly", "artistic"}): "Marble",
+    frozenset({"reliable", "confident"}): "Basalt",
+    frozenset({"tough", "friendly"}): "Limestone",
     # ... etc for all combos
 }
 
@@ -56,11 +56,15 @@ class MyHandler(BaseHTTPRequestHandler):
         body = self.rfile.read(length).decode()
         data = urllib.parse.parse_qs(body)
 
-        # Extract form fields
+        # Parse cookies
+        cookies = http.cookies.SimpleCookie(self.headers.get("Cookie"))
+
         username = data.get("username", [""])[0]
         email = data.get("email", [""])[0]
         password = data.get("password", [""])[0]
         password_again = data.get("password_again", [""])[0]
+        print(f"Received POST request on {self.path} with data: {data}")
+        print(f"Username: {username}, Email: {email}, Password: {password}, Password Again: {password_again}")
 
         if self.path == "/signup":
             success, msg = handle_signup(username, email, password, password_again)
@@ -79,22 +83,21 @@ class MyHandler(BaseHTTPRequestHandler):
                 self.respond_with_message(msg, status=401)
 
         elif self.path == "/login":
+            print(f"Login attempt for user: {username} with password: {password}")
             success, msg = handle_login(username, password)
             if success:
                 sid = secrets.token_hex(16)
                 SESSIONS[sid] = username
 
-                self.send_response(200)
+                self.send_response(302)
                 self.send_header('Location', '/home.html')
                 self.send_header("Set-Cookie", f"session_id={sid}; HttpOnly; Path=/")
                 self.end_headers()                
             else:
                 self.send_response(401)
                 self.end_headers()
-                #self.respond_with_message(msg, status=401)
 
         elif self.path == "/logout":
-            cookies = http.cookies.SimpleCookie(self.headers.get("Cookie"))
             sid = cookies.get("session_id")
             if sid and sid.value in SESSIONS:
                 del SESSIONS[sid.value]
@@ -103,19 +106,45 @@ class MyHandler(BaseHTTPRequestHandler):
             self.send_header("Location", "/index.html")
             self.send_header("Set-Cookie", "session_id=; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Path=/")
             self.end_headers()
+        
+        elif self.path == "/check-signup":
+            sid = cookies.get("session_id")
+            if sid and sid.value in SESSIONS:
+                print("User is logged in, redirecting to home.html")
+                self.send_response(302)
+                self.send_header("Location", "/home.html")
+                self.end_headers()
+            else:
+                print("User not logged in, staying on signup page")
+                self.send_response(302)
+                self.send_header("Location", "/signup.html")  # or /login.html based on context
+                self.end_headers()
+        
+        elif self.path == "/check-login":
+            sid = cookies.get("session_id")
+            if sid and sid.value in SESSIONS:
+                print("User is logged in, redirecting to home.html")
+                self.send_response(302)
+                self.send_header("Location", "/home.html")
+                self.end_headers()
+            else:
+                print("User not logged in, staying on login page")
+                self.send_response(302)
+                self.send_header("Location", "/login.html")  # or /signup.html based on context
+                self.end_headers()
 
         elif self.path == "/evaluate_traits":
 
             traits = data.get("traits", [])
+            print(f"Received traits: {traits}")
             if len(traits) != 2:
                 self.send_error(400, "Must pick exactly two traits")
                 return
 
-            stone = TRAIT_TO_STONE.get(frozenset(traits), "Quartz")  # fallback
+            stone = TRAIT_TO_STONE.get(frozenset(traits), "Quartz")
 
             print(f"User with traits {traits} gets stone {stone}")
             print("Getting cookies...")
-            cookies = http.cookies.SimpleCookie(self.headers.get("Cookie"))
             sid = cookies.get("session_id")
             if sid and sid.value in SESSIONS:
                 print("Found session, updating stone preference...")
@@ -131,7 +160,12 @@ class MyHandler(BaseHTTPRequestHandler):
 
             self.send_response(302)
             self.send_header("Location", "/home.html")
-            self.end_headers()       
+            self.end_headers()  
+
+        elif self.path == "/guest":
+            self.send_response(302)
+            self.send_header("Location", "https://youtu.be/oHbo_bGDik8?si=s9-4nbirrDi6SPZt")
+            self.end_headers()     
     
     def respond_with_message(self, message, status=200):
         return
@@ -163,15 +197,16 @@ def handle_signup(username, email, password, password_again):
         conn.close()
 
 def handle_login(username, password):
+    print(f"Attempting login for user: {username} with password: {password}")
     conn = sqlite3.connect("users.db")
     c = conn.cursor()
-    conn.execute("PRAGMA foreign_keys = ON;")
+    c.execute("PRAGMA foreign_keys = ON;")
 
-    c.execute("SELECT * FROM users WHERE username = ? AND password = ?", (username, password))
-    user = c.fetchone()
+    user = c.execute("SELECT * FROM users WHERE username = ? AND password = ?", (username, password)).fetchone()
     conn.close()
 
     if user:
+        print(f"User {username} logged in successfully")
         return True, f"Welcome back, {username}!"
     else:
         return False, "Invalid username or password"
