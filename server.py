@@ -81,6 +81,17 @@ class MyHandler(BaseHTTPRequestHandler):
                 self.end_headers()
             else:
                 self.respond_with_message(msg, status=401)
+        
+        elif self.path == "/home":
+            sid = cookies.get("session_id")
+            if sid and sid.value in SESSIONS:
+                self.send_response(302)
+                self.send_header("Location", "/home.html")
+                self.end_headers()
+            else:
+                self.send_response(302)
+                self.send_header("Location", "/index.html")
+                self.end_headers()
 
         elif self.path == "/login":
             print(f"Login attempt for user: {username} with password: {password}")
@@ -164,8 +175,21 @@ class MyHandler(BaseHTTPRequestHandler):
 
         elif self.path == "/guest":
             self.send_response(302)
-            self.send_header("Location", "https://youtu.be/oHbo_bGDik8?si=s9-4nbirrDi6SPZt")
-            self.end_headers()     
+            self.send_header("Location", "index.html")
+            self.end_headers()
+
+        elif self.path == "/api/stone":
+            sid = cookies.get("session_id")
+            if sid and sid.value in SESSIONS:
+                username = SESSIONS[sid.value]
+                conn = sqlite3.connect("users.db")
+                c = conn.cursor()
+                c.execute("PRAGMA foreign_keys = ON;")
+                user = c.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
+                conn.close()
+                if user and user[4]:  # rock_group is at index 4, change if different
+                    stone = user[4]
+                    print(stone)
     
     def respond_with_message(self, message, status=200):
         return
