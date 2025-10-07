@@ -56,6 +56,10 @@ class MyHandler(BaseHTTPRequestHandler):
             self.wfile.write(content)
         else:
             self.send_error(404, "File Not Found")
+    
+    def do_HEAD(self):
+        self.send_response(200)
+        self.end_headers()
 
     def do_POST(self):
         length = int(self.headers.get("Content-Length", 0))
