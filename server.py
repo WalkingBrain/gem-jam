@@ -16,13 +16,12 @@ TRAIT_TO_STONE = {
     frozenset({"reliable", "tough"}): "Lapis Lazuli",
     frozenset({"friendly", "artistic"}): "Marble",
     frozenset({"tough", "confident"}): "Obsidian",
-    frozenset({"tough", "reliable"}): "Quartz",
+    frozenset({"tough", "friendly"}): "Quartz",
     frozenset({"friendly", "reliable"}): "Sandstone",
     frozenset({""}): "Turquoise",
 
     # ... etc for all combos
 }
-
 class MyHandler(BaseHTTPRequestHandler):
     def do_GET(self):   
         # Cookie handling
@@ -276,6 +275,7 @@ if __name__ == "__main__":
             rock_group TEXT       
         )
         """)
-    server = HTTPServer(("127.0.0.1", 80), MyHandler)
-    print("Server running at http://127.0.0.1")
+    port = int(os.environ.get("PORT", 80))
+    server = HTTPServer(("0.0.0.0", port), MyHandler)
+    print("Server running at http://0.0.0.0")
     server.serve_forever()
