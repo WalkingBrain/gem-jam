@@ -279,7 +279,7 @@ if __name__ == "__main__":
             rock_group TEXT       
         )
         """)
-    port = int(os.environ.get("PORT", 80))
+    port = int(os.environ.get("PORT", 10000))
     server = HTTPServer(("0.0.0.0", port), MyHandler)
     print("Server running at http://0.0.0.0")
     server.serve_forever()
